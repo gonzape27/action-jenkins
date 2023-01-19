@@ -1,0 +1,28 @@
+name: 'Run Jenkins Job'
+description: 'Run Jenkins Job'
+runs:
+  using: "composite"
+  steps:
+    - name: Show Variables for Jenkins Job execution
+      run: echo " Running ${{env.JENKINS_URL}}/${{env.JOB_NAME}} for Branch ${{env.BRANCH_NAME}}  to merge against ${{env.BASE_BRANCH_NAME}}"
+      shell: bash
+
+    - name: Give Url to access to the selected job
+      run: echo "To see your build go to http://jenkins.internal.okera.rocks:8080/job/${{env.JOB_NAME}}"
+      shell: bash
+
+    - name: "Trigger jenkins job"
+      id: run_pipeline
+      uses: GoldenspearLLC/build-jenkins-job@master
+      with:
+        jenkins-url: ${{env.JENKINS_URL}}
+        jenkins-token:  ${{env.JENKINS_TOKEN}}
+        user: ${{env.JENKINS_USER}}
+        job-path: job/${{env.JOB_NAME}}
+        job-params: '{"REPOSITORY_NAME": "${{env.REPOSITORY_NAME}}","BRANCH_NAME": "${{env.BRANCH_NAME}}"}'
+    
+        
+    - name: Get job status
+      run: echo "Job status is ${{ steps.run_pipeline.outputs.job_status }}"
+      shell: bash
+
